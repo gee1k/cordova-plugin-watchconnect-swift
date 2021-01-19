@@ -1,27 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    id="watch-connect-plugin"
-    version="1.0.0">
-    <name>Watch Connect</name>
-    <description>Apple Watch Connectivity Plugin for Cordova</description>
-    <license>MIT</license>
-    <keywords>apple, watch, ios, watchconnect</keywords>
-    <repo>#</repo>
-    <issue>#</issue>
-
-    <!-- ios -->
-    <platform name="ios">
-        <js-module src="www/WatchConnect.js" name="WatchConnect">
-            <runs/>
-            <clobbers target="WatchConnect" />
-        </js-module>
-        <config-file target="config.xml" parent="/*">
-            <feature name="WatchConnect">
-                <param name="ios-package" value="WatchConnect" onload="true" />
-            </feature>
-        </config-file>
-
-        <source-file src="src/ios/WatchConnect.swift" />
-    </platform>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="cordova-plugin-watchconnect-swift" version="1.0.0">
+	<name>Cordova Watch Connect Swift</name>
+	<description>This plugin helps you communicate between Ionic/Cordova iOS app and Apple Watch</description>
+	<license>MIT</license>
+	<keywords>apple, watch, ios, watchconnect</keywords>
+	<repo>#</repo>
+	<issue>#</issue>
+	<!-- ios -->
+	<platform name="ios">
+		<js-module src="www/WatchConnect.js" name="WatchConnect">
+			<runs />
+			<clobbers target="WatchConnect" />
+		</js-module>
+		<config-file target="config.xml" parent="/*">
+			<feature name="WatchConnect">
+				<param name="ios-package" value="WatchConnect" onload="true" />
+			</feature>
+		</config-file>
+		<dependency id="cordova-plugin-add-swift-support" version="2.0.2"/>
+		<source-file src="src/ios/WatchConnect.swift" />
+	</platform>
 </plugin>

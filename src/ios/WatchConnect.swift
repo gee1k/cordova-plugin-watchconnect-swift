@@ -1,4 +1,3 @@
-
 import WatchConnectivity
 @objc(WatchConnect) class WatchConnect : CDVPlugin, WCSessionDelegate {
     
@@ -24,12 +23,12 @@ import WatchConnectivity
         let callbackID = command.callbackId
         var pluginResult: CDVPluginResult
         if(WCSession.isSupported()){
-            self.wcsession = WCSession.default()
+            self.wcsession = WCSession.default
             self.wcsession.delegate = self
             self.wcsession.activate()
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         }else{
-            self.alert(msg: "Watchkit nem érhető el.")
+            self.alert(msg: "WCSession not supported")
             pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR)
             
         }
@@ -43,7 +42,7 @@ import WatchConnectivity
         if(WCSession.isSupported()){
             let message = ["message": "check"]
             self.wcsession.sendMessage(message, replyHandler: nil, errorHandler: { error in
-                self.alert(msg: "Apple Watch nem elérhető!")
+                self.alert(msg: "Apple Watch not available")
                 var pluginResult: CDVPluginResult
                 pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR)
                 self.commandDelegate.send(pluginResult, callbackId: callbackID)
@@ -68,20 +67,20 @@ import WatchConnectivity
             let message = ["message": command.arguments[0]]
             if(self.wcsession.isPaired && wcsession.isReachable && wcsession.isWatchAppInstalled){
                 self.wcsession.sendMessage(message, replyHandler: nil, errorHandler: { error in
-                    self.alert(msg: "Apple Watch nem elérhető!")
+                    self.alert(msg: "Apple Watch not available")
                     var pluginResult: CDVPluginResult
                     pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR)
                     self.commandDelegate.send(pluginResult, callbackId: callbackID)
                 })
             }else{
-                self.alert(msg: "Apple Watch nem elérhető!")
+                self.alert(msg: "Apple Watch not available")
                 pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR)
                 self.commandDelegate.send(pluginResult, callbackId: callbackID)
             }
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
             self.commandDelegate.send(pluginResult, callbackId: callbackID)
         }else{
-            self.alert(msg: "Watchkit nem érhető el.")
+            self.alert(msg: "WCSession not supported")
             pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR)
             self.commandDelegate.send(pluginResult, callbackId: callbackID)
         }
@@ -127,4 +126,3 @@ import WatchConnectivity
     }
     
 }
-

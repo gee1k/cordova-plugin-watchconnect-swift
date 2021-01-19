@@ -32,18 +32,18 @@ WatchApp és WatchKit extension Build settings-nél ki kell venni a bridging hea
 
 InterfaceController.swift:
 ```swift
+import WatchKit
+import Foundation
 import WatchConnectivity
-class InterfaceController: WKInterfaceController, WCSessionDelegate{
+
+class InterfaceController: WKInterfaceController, WCSessionDelegate {
+    
     var wcsession: WCSession!
     
-    override func awake(withContext context: Any?) {
-        super.awake(withContext: context)
-    }
+    override func awake(withContext context: Any?) {}
     
     override func willActivate() {
-        super.willActivate()
-
-        wcsession = WCSession.default()
+        wcsession = WCSession.default
         wcsession.delegate = self
         wcsession.activate()
     }
@@ -55,11 +55,10 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate{
         }
     }
     
-    override func didDeactivate() {
-        super.didDeactivate()
-    }
+    override func didDeactivate() {}
     
-    public func session(_ session: WCSession, activationDidCompleteWith    activationState: WCSessionActivationState, error: Error?) {
-    }
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?){}
+    
 }
+
 ```

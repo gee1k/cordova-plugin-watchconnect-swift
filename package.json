@@ -1,11 +1,11 @@
 {
-  "name": "WatchConnect",
+  "name": "cordova-plugin-watchconnect-swift",
   "version": "1.0.0",
   "cordova": {
-    "id": "watch-connect-plugin",
+    "id": "cordova-plugin-watchconnect-swift",
     "platforms": [
       "ios"
     ]
   },
-  "description": "Apple Watch Connectivity Plugin for Cordova"
+  "description": "This plugin helps you communicate between Ionic/Cordova iOS app and Apple Watch"
 }
