@@ -1,21 +1,17 @@
-Cordova Apple WatchConnectivity Plugin
+# Cordova Watch Connect Swift plugin
 
-Ez a plugin az Apple "WatchConnectivity" framework használatával kommunikál natív watchOS app és IONIC/Cordova iPhone app között.
-Előnye, hogy nincs szükség App Group használatára mint az MMWormhole esetében.
+This plugin helps you communicate between Ionic/Cordova iOS app and Apple Watch
 
-======
-## Telepítés:
+## Install:
 ```bash
-$ ionic start DEMOAPP blank
-$ cd DEMOAPP
-$ cordova plugin add cordova-plugin-add-swift-support --save
 $ cordova platform add ios
-$ cordova plugin add https://gbernat@stash.sed.hu/scm/isp/cordova-applewatch-watchconnectivity-plugin.git
+$ cordova plugin add cordova-plugin-add-swift-support --save
+$ cordova plugin add ........git
 ```
 
-## Használat:
+## Use:
 
-### Typescript:
+### Ionic:
 ```js
 WatchConnect.initialize((onSuccess) => {
     WatchConnect.listenMessage((message) => {
@@ -27,9 +23,11 @@ WatchConnect.initialize((onSuccess) => {
 WatchConnect.sendMessage("test");
 ```
 
-### Xcode:
+### Swift:
 DEMOAPP/platforms/ios/MyApp.xcodeproj
+
 File/New/Target/WatchOS/WatchKit App
+
 WatchApp és WatchKit extension Build settings-nél ki kell venni a bridging header fájlt!
 
 InterfaceController.swift:
@@ -65,14 +63,3 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate{
     }
 }
 ```
-
-```bash
-$ ionic cordova run ios  //BUILD ERROR a watch target miatt.
-```
-
-### Xcode:
-Futtatás simulatorban.
-
-###### Gécs Bernát
-###### Felhasznált források:
- Obj-c alapú plugin: https://github.com/DVenkatesh/cordova-plugin-watchconnectivity
