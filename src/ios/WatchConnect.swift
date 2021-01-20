@@ -1,108 +1,84 @@
 import WatchConnectivity
 @objc(WatchConnect) class WatchConnect : CDVPlugin, WCSessionDelegate {
     
-    public func sessionDidBecomeInactive(_ session: WCSession) {
-        print("inactive")
-    }
-    public func sessionDidDeactivate(_ session: WCSession) {
-        print("deactivate")
-    }
-    public func session(_ session: WCSession, activationDidCompleteWith    activationState: WCSessionActivationState, error: Error?) {
-        print("activation")
-        if error != nil {
-            print(error ?? "")
-        }
-    }
-    
     var wcsession: WCSession!
-    var messageReceiver: String = ""
-    var callback: String = ""
+    var callbackId: String = ""
     
     @objc(initialize:)
     func initialize(command: CDVInvokedUrlCommand){
-        let callbackID = command.callbackId
-        var pluginResult: CDVPluginResult
+        guard let callbackId = command.callbackId else { return }
+        self.callbackId = callbackId
         if(WCSession.isSupported()){
             self.wcsession = WCSession.default
             self.wcsession.delegate = self
             self.wcsession.activate()
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         }else{
-            self.alert(msg: "WCSession not supported")
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR)
-            
-        }
-        self.commandDelegate.send(pluginResult, callbackId: callbackID)
-    }
-    
-    @objc(checkConnection:)
-    func checkConnection(command: CDVInvokedUrlCommand){
-        let callbackID = command.callbackId
-        self.callback = callbackID!
-        if(WCSession.isSupported()){
-            let message = ["message": "check"]
-            self.wcsession.sendMessage(message, replyHandler: nil, errorHandler: { error in
-                self.alert(msg: "Apple Watch not available")
-                var pluginResult: CDVPluginResult
-                pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR)
-                self.commandDelegate.send(pluginResult, callbackId: callbackID)
-            })
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "WCSESSION_NOT_SUPPORTED")
+            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
         }
     }
     
     @objc(deinitialize:)
     func deinitialize(command: CDVInvokedUrlCommand){
-        let callbackID = command.callbackId
+        guard let callbackId = command.callbackId else { return }
         var pluginResult: CDVPluginResult
         self.wcsession = nil
+        self.callbackId = ""
         pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-        self.commandDelegate.send(pluginResult, callbackId: callbackID)
+        self.commandDelegate.send(pluginResult, callbackId: callbackId)
+    }
+    
+    @objc(checkConnection:)
+    func checkConnection(command: CDVInvokedUrlCommand){
+        guard let callbackId = command.callbackId else { return }
+        var pluginResult: CDVPluginResult
+        if(self.wcsession.isPaired && self.wcsession.isReachable && self.wcsession.isWatchAppInstalled){
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
+        }else{
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "APPLE_WATCH_NOT_AVAILABLE")
+        }
+        self.commandDelegate.send(pluginResult, callbackId: callbackId)
     }
     
     @objc(sendMessage:)
     func sendMessage(command: CDVInvokedUrlCommand){
-        let callbackID = command.callbackId
-        var pluginResult: CDVPluginResult
-        if(WCSession.isSupported()){
-            let message = ["message": command.arguments[0]]
-            if(self.wcsession.isPaired && wcsession.isReachable && wcsession.isWatchAppInstalled){
-                self.wcsession.sendMessage(message, replyHandler: nil, errorHandler: { error in
-                    self.alert(msg: "Apple Watch not available")
-                    var pluginResult: CDVPluginResult
-                    pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR)
-                    self.commandDelegate.send(pluginResult, callbackId: callbackID)
-                })
-            }else{
-                self.alert(msg: "Apple Watch not available")
-                pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR)
-                self.commandDelegate.send(pluginResult, callbackId: callbackID)
-            }
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-            self.commandDelegate.send(pluginResult, callbackId: callbackID)
-        }else{
-            self.alert(msg: "WCSession not supported")
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR)
-            self.commandDelegate.send(pluginResult, callbackId: callbackID)
-        }
+        guard let callbackId = command.callbackId else { return }
+        let message = ["message": command.arguments[0]]
+        self.sendM(callbackId: callbackId, message: message)
     }
     
     @objc(listenMessage:)
     func listenMessage(command: CDVInvokedUrlCommand){
-        let callbackID = command.callbackId
-        self.messageReceiver = callbackID!
+        guard let callbackId = command.callbackId else { return }
+        self.callbackId = callbackId
+    }
+    
+    func sendM(callbackId: String, message: [String : Any]){
+        var pluginResult: CDVPluginResult
+        if(WCSession.isSupported()){
+            if(self.wcsession.isPaired && self.wcsession.isReachable && self.wcsession.isWatchAppInstalled){
+                self.wcsession.sendMessage(message, replyHandler: nil, errorHandler: { error in
+                    var pluginResult: CDVPluginResult
+                    pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "MESSAGE_SEND_FAIL")
+                    self.commandDelegate.send(pluginResult, callbackId: callbackId)
+                })
+            }else{
+                pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "APPLE_WATCH_NOT_AVAILABLE")
+                self.commandDelegate.send(pluginResult, callbackId: callbackId)
+            }
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "MESSAGE_SENT")
+            self.commandDelegate.send(pluginResult, callbackId: callbackId)
+        }else{
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "WCSESSION_NOT_SUPPORTED")
+            self.commandDelegate.send(pluginResult, callbackId: callbackId)
+        }
     }
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
         var pluginResult: CDVPluginResult
-        let msg = message["reply"] as! String
-        if(msg == "check"){
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
-            self.commandDelegate.send(pluginResult, callbackId: self.callback)
-        }else{
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: message)
-            pluginResult.setKeepCallbackAs(true)
-            self.commandDelegate.send(pluginResult, callbackId: self.messageReceiver)
-        }
+        pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: message)
+        pluginResult.setKeepCallbackAs(true)
+        self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
     }
     
     func session(_ session: WCSession, didReceive file: WCSessionFile) {
@@ -110,19 +86,31 @@ import WatchConnectivity
         do {
             let contents = try String(contentsOf: file.fileURL)
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: contents)
-            self.commandDelegate.send(pluginResult, callbackId: self.messageReceiver)
+            pluginResult.setKeepCallbackAs(true)
+            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
         } catch let err {
-            self.alert(msg: String(describing: err.localizedDescription))
+            print(String(describing: err.localizedDescription))
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "FILE_CONTENTS_ERROR")
+            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
         }
     }
     
-    func alert(msg: String){
-        DispatchQueue.main.async {
-            let alertView = UIAlertController(title: msg, message: "", preferredStyle: .alert)
-            let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-            alertView.addAction(action)
-            self.viewController.present(alertView, animated: true, completion: nil)
-        }
+    public func sessionDidBecomeInactive(_ session: WCSession) {
+        print("WCSession sessionDidBecomeInactive")
     }
     
+    public func sessionDidDeactivate(_ session: WCSession) {
+        print("WCSession sessionDidDeactivate")
+    }
+    
+    public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        print("WCSession activationDidCompleteWith")
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "WCSESSION_ACTIVATED")
+        self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+        if error != nil {
+            print(error ?? "WCSession activationDidCompleteWith ERROR")
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "WCSESSION_NOT_ACTIVATED")
+            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+        }
+    }
 }
