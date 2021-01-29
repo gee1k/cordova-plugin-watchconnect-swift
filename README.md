@@ -4,32 +4,40 @@ This plugin helps you communicate between Ionic/Cordova iOS app and Apple Watch
 
 ## Install:
 ```bash
-$ cordova platform add ios
-$ cordova plugin add cordova-plugin-add-swift-support --save
-$ cordova plugin add ........git
+$ cordova plugin add https://github.com/gecsbernat/cordova-plugin-watchconnect-swift.git
 ```
 
 ## Use:
 
 ### Ionic:
 ```js
-WatchConnect.initialize((onSuccess) => {
-    WatchConnect.listenMessage((message) => {
-        console.log("Message from watch: "+message);
-    }, (onError)=>{
-        console.log("error");
+WatchConnect.initialize((success: any) => {
+    console.log(success);
+    WatchConnect.listenMessage((message: any) => {
+        console.log(message);
+    }, (error: any) => {
+        console.log(error);
     });
+}, (error: any) => {
+    console.log(error);
 });
-WatchConnect.sendMessage("test");
+
+
+WatchConnect.sendMessage(message, (success: any) => {
+    console.log(success);
+}, (error: any) => {
+    console.log(error);
+});
+
+
+WatchConnect.updateApplicationContext(keyString, valueString, (success: any) => {
+    console.log(success);
+}, (error: any) => {
+    console.log(error);
+});
 ```
 
 ### Swift:
-DEMOAPP/platforms/ios/MyApp.xcodeproj
-
-File/New/Target/WatchOS/WatchKit App
-
-WatchApp és WatchKit extension Build settings-nél ki kell venni a bridging header fájlt!
-
 InterfaceController.swift:
 ```swift
 import WatchKit
@@ -58,7 +66,15 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     override func didDeactivate() {}
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?){}
-    
 }
-
 ```
+
+Add new Watchkit target in xCode:
+* File -> New -> Target... -> watchOS / Watch App for iOS App
+* Fill options
+
+If you get this error:
+```
+'Cordova/CDV.h' file not found
+```
+* Remove Bridging-Header from Watchkit Extension target's Build Settings / Swift Compiler General

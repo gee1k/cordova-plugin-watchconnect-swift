@@ -1,23 +1,27 @@
 var exec = require('cordova/exec');
 
 module.exports = {
-    initialize: function (onSuccess, onError) {
-        exec(onSuccess, onError, "WatchConnect", "initialize", []);
+    updateApplicationContext: function (keyString, valueString, success, error) {
+        exec(success, error, "WatchConnect", "updateApplicationContext", [keyString, valueString]);
     },
 
-    deinitialize: function (message, onSuccess, onError) {
-        exec(onSuccess, onError, "WatchConnect", "deinitialize", []);
+    initialize: function (success, error) {
+        exec(success, error, "WatchConnect", "initialize", []);
     },
 
-    sendMessage: function (message, onSuccess, onError) {
-        exec(onSuccess, onError, "WatchConnect", "sendMessage", [message]);
+    deinitialize: function (success, error) {
+        exec(success, error, "WatchConnect", "deinitialize", []);
+    },
+
+    sendMessage: function (message, success, error) {
+        exec(success, error, "WatchConnect", "sendMessage", [message]);
     },
 
     listenMessage: function (onMessage) {
         exec(onMessage, null, "WatchConnect", "listenMessage", []);
     },
 
-    checkConnection: function (onSuccess, onError) {
-        exec(onSuccess, onError, "WatchConnect", "checkConnection", []);
+    checkConnection: function (success, error) {
+        exec(success, error, "WatchConnect", "checkConnection", []);
     }
 };

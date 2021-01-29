@@ -4,6 +4,22 @@ import WatchConnectivity
     var wcsession: WCSession!
     var callbackId: String = ""
     
+    @objc(updateApplicationContext:)
+    func updateApplicationContext(command: CDVInvokedUrlCommand){
+        guard let callbackId = command.callbackId else { return }
+        var pluginResult: CDVPluginResult
+        let keyString = command.arguments[0] as! String
+        let valueString = command.arguments[1] as! String
+        do {
+            try self.wcsession.updateApplicationContext([keyString : valueString])
+        } catch {
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "UPDATE_ERROR")
+            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+        }
+        pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "CONTEXT_UPDATED")
+        self.commandDelegate.send(pluginResult, callbackId: callbackId)
+    }
+    
     @objc(initialize:)
     func initialize(command: CDVInvokedUrlCommand){
         guard let callbackId = command.callbackId else { return }
@@ -104,11 +120,11 @@ import WatchConnectivity
     }
     
     public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        print("WCSession activationDidCompleteWith")
+        print("WCSession activationDidCompleteWith activationState: \(activationState.rawValue)")
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "WCSESSION_ACTIVATED")
         self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
         if error != nil {
-            print(error ?? "WCSession activationDidCompleteWith ERROR")
+            print("WCSession activationDidCompleteWith ERROR: \(String(describing: error))")
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "WCSESSION_NOT_ACTIVATED")
             self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
         }
