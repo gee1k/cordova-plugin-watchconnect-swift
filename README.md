@@ -62,6 +62,10 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
             print(Error)
         }
     }
+
+    public func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+        print("didReceiveApplicationContext: \(applicationContext)")
+    }
     
     override func didDeactivate() {}
     
