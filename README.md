@@ -106,16 +106,23 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         wcsession.activate()
     }
     
+    override func didDeactivate() {}
+    
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?){
+        print("WCSession activationDidCompleteWith activationState: \(activationState.rawValue)")
+    }
+
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+        print("WCSession didReceiveApplicationContext: \(applicationContext)")
+    }
+
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+        print("WCSession didReceiveMessage: \(message)")
         print(message["message"] as! String)
         wcsession.sendMessage(["reply":"reply"], replyHandler: nil) { (Error) in
             print(Error)
         }
     }
-    
-    override func didDeactivate() {}
-    
-    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?){}
 }
 ```
 
