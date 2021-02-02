@@ -4,37 +4,87 @@ This plugin helps you communicate between Ionic/Cordova iOS app and Apple Watch
 
 ## Install:
 ```bash
-$ cordova plugin add https://github.com/gecsbernat/cordova-plugin-watchconnect-swift.git
+$ ionic cordova plugin add https://github.com/gecsbernat/cordova-plugin-watchconnect-swift.git
 ```
 
 ## Use:
 
 ### Ionic:
-```js
-WatchConnect.initialize((success: any) => {
-    console.log(success);
-    WatchConnect.listenMessage((message: any) => {
-        console.log(message);
-    }, (error: any) => {
-        console.log(error);
-    });
-}, (error: any) => {
-    console.log(error);
-});
+```typescript
+import { Injectable } from "@angular/core";
+import { Platform } from "@ionic/angular";
+import { Observable } from "rxjs";
+declare var WatchConnect: any;
 
+@Injectable({ providedIn: 'root' })
+export class AppleWatchConnectService {
 
-WatchConnect.sendMessage(message, (success: any) => {
-    console.log(success);
-}, (error: any) => {
-    console.log(error);
-});
+    watchConnectEnabled = false;
 
+    constructor(
+        private platform: Platform
+    ) { }
 
-WatchConnect.updateApplicationContext(keyString, valueString, (success: any) => {
-    console.log(success);
-}, (error: any) => {
-    console.log(error);
-});
+    initializeAppleWatchConnection(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this.platform.is('cordova') && this.platform.is('ios')) {
+                WatchConnect.initialize((success: any) => {
+                    this.watchConnectEnabled = true;
+                    resolve(success)
+                }, (error: any) => {
+                    this.watchConnectEnabled = false;
+                    reject(error);
+                });
+            } else {
+                this.watchConnectEnabled = false;
+                reject('NOT_CORDOVA_ON_IOS');
+            }
+        });
+    }
+
+    listenMessage(): Observable<any> {
+        return new Observable((observer) => {
+            if (this.watchConnectEnabled) {
+                WatchConnect.listenMessage((message: any) => {
+                    observer.next(message);
+                }, (error: any) => {
+                    observer.error(error);
+                });
+            } else {
+                observer.error('WATCH_CONNECT_NOT_ENABLED');
+            }
+        });
+    }
+
+    sendMessage(message: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this.watchConnectEnabled) {
+                WatchConnect.sendMessage(message, (success: any) => {
+                    resolve(success);
+                }, (error: any) => {
+                    reject(error);
+                });
+            } else {
+                reject('WATCH_CONNECT_NOT_ENABLED');
+            }
+        });
+    }
+
+    updateApplicationContext(keyString: string, valueString: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (this.watchConnectEnabled) {
+                WatchConnect.updateApplicationContext(keyString, valueString, (success: any) => {
+                    console.log(success);
+                    resolve(success);
+                }, (error: any) => {
+                    reject(error);
+                });
+            } else {
+                reject('WATCH_CONNECT_NOT_ENABLED');
+            }
+        });
+    }
+}
 ```
 
 ### Swift:
@@ -61,10 +111,6 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         wcsession.sendMessage(["reply":"reply"], replyHandler: nil) { (Error) in
             print(Error)
         }
-    }
-
-    public func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-        print("didReceiveApplicationContext: \(applicationContext)")
     }
     
     override func didDeactivate() {}
