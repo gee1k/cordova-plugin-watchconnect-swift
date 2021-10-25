@@ -1,11 +1,28 @@
 {
   "name": "cordova-plugin-watchconnect-swift",
   "version": "1.0.0",
+  "cordova_name": "WatchConnect",
+  "description": "This plugin helps you communicate between Ionic/Cordova iOS app and Apple Watch",
+  "license": "MIT",
+  "author": {
+    "name": "Gecs Bernat"
+  },
+  "repo": "https://github.com/gecsbernat/cordova-plugin-watchconnect-swift",
+  "issue": "https://github.com/gecsbernat/cordova-plugin-watchconnect-swift/issues",
+  "keywords": [
+    "ios",
+    "apple",
+    "cordova",
+    "ionic",
+    "cordova-plugin",
+    "cordova-ios",
+    "wcsession",
+    "applewatch"
+  ],
   "cordova": {
     "id": "cordova-plugin-watchconnect-swift",
     "platforms": [
       "ios"
     ]
-  },
-  "description": "This plugin helps you communicate between Ionic/Cordova iOS app and Apple Watch"
+  }
 }
