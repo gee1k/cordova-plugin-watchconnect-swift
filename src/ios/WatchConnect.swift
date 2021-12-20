@@ -25,7 +25,7 @@ import WatchConnectivity
         guard let callbackId = command.callbackId else { return }
         var pluginResult: CDVPluginResult
         let keyString = command.arguments[0] as! String
-        let valueString = command.arguments[1] as! String
+        let valueString = command.arguments[1] as! AnyObject
         do {
             try self.wcsession.transferUserInfo([keyString : valueString])
         } catch {
