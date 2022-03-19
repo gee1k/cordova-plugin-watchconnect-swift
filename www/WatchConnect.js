@@ -3,6 +3,9 @@ module.exports = {
     updateApplicationContext: function (keyString, valueString, success, error) {
         exec(success, error, "WatchConnect", "updateApplicationContext", [keyString, valueString]);
     },
+    transferUserInfo: function (keyString, valueString, success, error) {
+        exec(success, error, "WatchConnect", "transferUserInfo", [keyString, valueString]);
+    },
     initialize: function (success, error) {
         exec(success, error, "WatchConnect", "initialize", []);
     },
