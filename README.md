@@ -4,7 +4,7 @@ This plugin helps you communicate between Ionic/Cordova iOS app and Apple Watch
 
 ## Install:
 ```bash
-$ ionic cordova plugin add https://github.com/gecsbernat/cordova-plugin-watchconnect-swift.git
+$ ionic cordova plugin add https://github.com/gee1k/cordova-plugin-watchconnect-swift.git
 ```
 
 ## Use:
