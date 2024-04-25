@@ -56,7 +56,7 @@ export class AppleWatchConnectService {
         });
     }
 
-    sendMessage(message: string): Promise<any> {
+    sendMessage(message: Record<string, any>): Promise<any> {
         return new Promise((resolve, reject) => {
             if (this.watchConnectEnabled) {
                 WatchConnect.sendMessage(message, (success: any) => {
@@ -70,7 +70,7 @@ export class AppleWatchConnectService {
         });
     }
 
-    updateApplicationContext(keyString: string, valueString: string): Promise<any> {
+    updateApplicationContext(message: Record<string, any>): Promise<any> {
         return new Promise((resolve, reject) => {
             if (this.watchConnectEnabled) {
                 WatchConnect.updateApplicationContext(keyString, valueString, (success: any) => {

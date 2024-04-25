@@ -4,38 +4,6 @@ import WatchConnectivity
     var wcsession: WCSession!
     var callbackId: String = ""
 
-    @objc(updateApplicationContext:)
-    func updateApplicationContext(command: CDVInvokedUrlCommand){
-        guard let callbackId = command.callbackId else { return }
-        var pluginResult: CDVPluginResult
-        let keyString = command.arguments[0] as! String
-        let valueString = command.arguments[1] as! String
-        do {
-            try self.wcsession.updateApplicationContext([keyString : valueString])
-        } catch {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "UPDATE_ERROR")
-            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
-        }
-        pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "CONTEXT_UPDATED")
-        self.commandDelegate.send(pluginResult, callbackId: callbackId)
-    }
-
-    @objc(transferUserInfo:)
-    func transferUserInfo(command: CDVInvokedUrlCommand){
-        guard let callbackId = command.callbackId else { return }
-        var pluginResult: CDVPluginResult
-        let keyString = command.arguments[0] as! String
-        let valueString = command.arguments[1] as! AnyObject
-        do {
-            try self.wcsession.transferUserInfo([keyString : valueString])
-        } catch {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "TRANSFER_ERROR")
-            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
-        }
-        pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "USER_INFO_UPDATED")
-        self.commandDelegate.send(pluginResult, callbackId: callbackId)
-    }
-
     @objc(initialize:)
     func initialize(command: CDVInvokedUrlCommand){
         guard let callbackId = command.callbackId else { return }
@@ -75,7 +43,12 @@ import WatchConnectivity
     @objc(sendMessage:)
     func sendMessage(command: CDVInvokedUrlCommand){
         guard let callbackId = command.callbackId else { return }
-        let message = ["message": command.arguments[0]]
+
+        guard let message = command.arguments[0] as? [String: Any] else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid message format")
+            commandDelegate.send(pluginResult, callbackId: callbackId)
+            return
+        }
         self.sendM(callbackId: callbackId, message: message)
     }
 
@@ -83,6 +56,48 @@ import WatchConnectivity
     func listenMessage(command: CDVInvokedUrlCommand){
         guard let callbackId = command.callbackId else { return }
         self.callbackId = callbackId
+    }
+
+    @objc(updateApplicationContext:)
+    func updateApplicationContext(command: CDVInvokedUrlCommand){
+        guard let callbackId = command.callbackId else { return }
+
+        guard let message = command.arguments[0] as? [String: Any] else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid message format")
+            commandDelegate.send(pluginResult, callbackId: callbackId)
+            return
+        }
+
+        var pluginResult: CDVPluginResult
+        do {
+            try self.wcsession.updateApplicationContext(message)
+        } catch {
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "UPDATE_ERROR")
+            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+        }
+        pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "CONTEXT_UPDATED")
+        self.commandDelegate.send(pluginResult, callbackId: callbackId)
+    }
+
+    @objc(transferUserInfo:)
+    func transferUserInfo(command: CDVInvokedUrlCommand){
+        guard let callbackId = command.callbackId else { return }
+
+        guard let message = command.arguments[0] as? [String: Any] else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Invalid message format")
+            commandDelegate.send(pluginResult, callbackId: callbackId)
+            return
+        }
+
+        var pluginResult: CDVPluginResult
+        do {
+            try self.wcsession.transferUserInfo(message)
+        } catch {
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "TRANSFER_ERROR")
+            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+        }
+        pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "USER_INFO_UPDATED")
+        self.commandDelegate.send(pluginResult, callbackId: callbackId)
     }
 
     func sendM(callbackId: String, message: [String : Any]){
@@ -111,6 +126,14 @@ import WatchConnectivity
         pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: message)
         pluginResult.setKeepCallbackAs(true)
         self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+    }
+
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+        var pluginResult: CDVPluginResult
+        pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: message)
+        pluginResult.setKeepCallbackAs(true)
+        self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+        replyHandler(["reply": "Message received"])
     }
 
     func session(_ session: WCSession, didReceive file: WCSessionFile) {
