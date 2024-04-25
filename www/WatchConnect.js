@@ -6,8 +6,8 @@ module.exports = {
     deinitialize: function (success, error) {
         exec(success, error, "WatchConnect", "deinitialize", []);
     },
-    sendMessage: function (message, success, error) {
-        exec(success, error, "WatchConnect", "sendMessage", [message]);
+    sendMessage: function (message, replyRequired, success, error) {
+        exec(success, error, "WatchConnect", "sendMessage", [message, replyRequired]);
     },
     listenMessage: function (onMessage) {
         exec(onMessage, null, "WatchConnect", "listenMessage", []);
