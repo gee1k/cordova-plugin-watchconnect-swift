@@ -28,6 +28,18 @@ import WatchConnectivity
         self.commandDelegate.send(pluginResult, callbackId: callbackId)
     }
 
+    @objc(isWatchPaired:)
+    func isWatchPaired(command: CDVInvokedUrlCommand){
+        guard let callbackId = command.callbackId else { return }
+        var pluginResult: CDVPluginResult
+        if(self.wcsession.isPaired){
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
+        }else{
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "APPLE_WATCH_NOT_PAIRED")
+        }
+        self.commandDelegate.send(pluginResult, callbackId: callbackId)
+    }
+
     @objc(checkConnection:)
     func checkConnection(command: CDVInvokedUrlCommand){
         guard let callbackId = command.callbackId else { return }

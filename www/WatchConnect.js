@@ -20,5 +20,8 @@ module.exports = {
     },
     checkConnection: function (success, error) {
         exec(success, error, "WatchConnect", "checkConnection", []);
+    },
+    isWatchPaired: function (success, error) {
+        exec(success, error, "WatchConnect", "isWatchPaired", []);
     }
 };
