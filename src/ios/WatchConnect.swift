@@ -60,17 +60,18 @@ import HealthKit
     func openWatchApp(command: CDVInvokedUrlCommand){
         guard let callbackId = command.callbackId else { return }
         
-        let config = HKWorkoutConfiguration()
-        config.activityType = .boxing
-        config.locationType = .indoor
-        
         if (self.wcsession.activationState == .activated && self.wcsession.isWatchAppInstalled) {
-            self.healthStore.startWatchApp(with: config) { success, error in
-                if success {
-                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
+            let configuration = HKWorkoutConfiguration()
+            configuration.activityType = .traditionalStrengthTraining
+            configuration.locationType = .outdoor
+            
+            let healthStore = HKHealthStore()
+            healthStore.startWatchApp(with: configuration) { (success, error) in
+                if let error = error {
+                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: error.localizedDescription)
                     self.commandDelegate.send(pluginResult, callbackId: callbackId)
-                } else {
-                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "START_APPLE_WATCH_APP_ERROR")
+                } else if success {
+                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
                     self.commandDelegate.send(pluginResult, callbackId: callbackId)
                 }
             }
