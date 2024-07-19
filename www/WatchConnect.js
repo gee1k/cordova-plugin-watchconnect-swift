@@ -23,5 +23,8 @@ module.exports = {
     },
     isWatchPaired: function (success, error) {
         exec(success, error, "WatchConnect", "isWatchPaired", []);
+    },
+    openWatchApp: function (success, error) {
+        exec(success, error, "WatchConnect", "openWatchApp", []);
     }
 };

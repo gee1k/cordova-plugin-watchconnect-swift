@@ -1,8 +1,12 @@
 import WatchConnectivity
+import HealthKit
+
 @objc(WatchConnect) class WatchConnect : CDVPlugin, WCSessionDelegate {
 
     var wcsession: WCSession!
     var callbackId: String = ""
+
+    let healthStore = HKHealthStore()
 
     @objc(initialize:)
     func initialize(command: CDVInvokedUrlCommand){
@@ -50,6 +54,30 @@ import WatchConnectivity
             pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "APPLE_WATCH_NOT_AVAILABLE")
         }
         self.commandDelegate.send(pluginResult, callbackId: callbackId)
+    }
+
+    @objc(openWatchApp:)
+    func openWatchApp(command: CDVInvokedUrlCommand){
+        guard let callbackId = command.callbackId else { return }
+        
+        let config = HKWorkoutConfiguration()
+        config.activityType = .boxing
+        config.locationType = .indoor
+        
+        if (self.wcsession.activationState == .activated && self.wcsession.isWatchAppInstalled) {
+            self.healthStore.startWatchApp(with: config, completion: { (success, error) in
+                if success {
+                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
+                    self.commandDelegate.send(pluginResult, callbackId: callbackId)
+                } else {
+                    let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "START_APPLE_WATCH_APP_ERROR")
+                    self.commandDelegate.send(pluginResult, callbackId: callbackId)
+                }
+            })
+        } else {
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "APPLE_WATCH_NOT_AVAILABLE")
+            self.commandDelegate.send(pluginResult, callbackId: callbackId)
+        }
     }
 
     @objc(sendMessage:)
