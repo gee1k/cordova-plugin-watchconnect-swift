@@ -65,7 +65,7 @@ import HealthKit
         config.locationType = .indoor
         
         if (self.wcsession.activationState == .activated && self.wcsession.isWatchAppInstalled) {
-            self.healthStore.startWatchApp(with: config, completion: { (success, error) in
+            self.healthStore.startWatchApp(with: config) { success, error in
                 if success {
                     let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
                     self.commandDelegate.send(pluginResult, callbackId: callbackId)
@@ -73,7 +73,7 @@ import HealthKit
                     let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "START_APPLE_WATCH_APP_ERROR")
                     self.commandDelegate.send(pluginResult, callbackId: callbackId)
                 }
-            })
+            }
         } else {
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "APPLE_WATCH_NOT_AVAILABLE")
             self.commandDelegate.send(pluginResult, callbackId: callbackId)
