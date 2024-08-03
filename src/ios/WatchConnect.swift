@@ -181,6 +181,20 @@ import HealthKit
         replyHandler(["reply": "Message received"])
     }
 
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+        var pluginResult: CDVPluginResult
+        pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: userInfo)
+        pluginResult.setKeepCallbackAs(true)
+        self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+    }
+    
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+        var pluginResult: CDVPluginResult
+        pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: applicationContext)
+        pluginResult.setKeepCallbackAs(true)
+        self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+    }
+
     func session(_ session: WCSession, didReceive file: WCSessionFile) {
         var pluginResult: CDVPluginResult
         do {
