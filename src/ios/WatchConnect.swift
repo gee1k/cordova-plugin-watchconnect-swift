@@ -5,6 +5,8 @@ import HealthKit
 
     var wcsession: WCSession!
     var callbackId: String = ""
+    
+    var messageCallbackId: String = ""
 
     let healthStore = HKHealthStore()
 
@@ -28,6 +30,7 @@ import HealthKit
         var pluginResult: CDVPluginResult
         self.wcsession = nil
         self.callbackId = ""
+        self.messageCallbackId = ""
         pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         self.commandDelegate.send(pluginResult, callbackId: callbackId)
     }
@@ -121,7 +124,7 @@ import HealthKit
     @objc(listenMessage:)
     func listenMessage(command: CDVInvokedUrlCommand){
         guard let callbackId = command.callbackId else { return }
-        self.callbackId = callbackId
+        self.messageCallbackId = callbackId
     }
 
     @objc(updateApplicationContext:)
@@ -139,7 +142,7 @@ import HealthKit
             try self.wcsession.updateApplicationContext(message)
         } catch {
             pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "UPDATE_ERROR")
-            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+            self.commandDelegate.send(pluginResult, callbackId: callbackId)
         }
         pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "CONTEXT_UPDATED")
         self.commandDelegate.send(pluginResult, callbackId: callbackId)
@@ -156,12 +159,7 @@ import HealthKit
         }
 
         var pluginResult: CDVPluginResult
-        do {
-            try self.wcsession.transferUserInfo(message)
-        } catch {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "TRANSFER_ERROR")
-            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
-        }
+        self.wcsession.transferUserInfo(message)
         pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "USER_INFO_UPDATED")
         self.commandDelegate.send(pluginResult, callbackId: callbackId)
     }
@@ -170,14 +168,14 @@ import HealthKit
         var pluginResult: CDVPluginResult
         pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: message)
         pluginResult.setKeepCallbackAs(true)
-        self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+        self.commandDelegate.send(pluginResult, callbackId: self.messageCallbackId)
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
         var pluginResult: CDVPluginResult
         pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: message)
         pluginResult.setKeepCallbackAs(true)
-        self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+        self.commandDelegate.send(pluginResult, callbackId: self.messageCallbackId)
         replyHandler(["reply": "Message received"])
     }
 
@@ -185,14 +183,14 @@ import HealthKit
         var pluginResult: CDVPluginResult
         pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: userInfo)
         pluginResult.setKeepCallbackAs(true)
-        self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+        self.commandDelegate.send(pluginResult, callbackId: self.messageCallbackId)
     }
     
     func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
         var pluginResult: CDVPluginResult
         pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: applicationContext)
         pluginResult.setKeepCallbackAs(true)
-        self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+        self.commandDelegate.send(pluginResult, callbackId: self.messageCallbackId)
     }
 
     func session(_ session: WCSession, didReceive file: WCSessionFile) {
@@ -201,11 +199,11 @@ import HealthKit
             let contents = try String(contentsOf: file.fileURL)
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: contents)
             pluginResult.setKeepCallbackAs(true)
-            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+            self.commandDelegate.send(pluginResult, callbackId: self.messageCallbackId)
         } catch let err {
             print(String(describing: err.localizedDescription))
             pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "FILE_CONTENTS_ERROR")
-            self.commandDelegate.send(pluginResult, callbackId: self.callbackId)
+            self.commandDelegate.send(pluginResult, callbackId: self.messageCallbackId)
         }
     }
 
